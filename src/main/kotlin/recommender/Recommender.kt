@@ -15,29 +15,40 @@ class Recommender(private var username: String) {
      * This method downloads a users animelist and puts the anime ID and the users score into the animeMap.
      */
     fun analyzeAnimelistJSON() {
-        // download JSON
-        downloadFile("https://api.jikan.moe/v3/user/$username/animelist", "animelist.json")
+        var page = 1
+        var lastPage = false
 
-        // extract data from JSON
-        val json = File("animelist.json") // "https://api.jikan.moe/v3/user/$username/animelist"
-        val jsonAsString = json.readText().substringAfter("\"anime\":[{\"") // delete the beginning before the animes
-        val animes = jsonAsString.split("mal_id\":") // split between the animes
-        for (anime in animes) {
-            if (anime == "") { // for some reason we get an empty string at the beginning TODO create a better solution
-                continue
-            }
-            val id = anime.substringBefore(',').toInt()
-            val score = anime.substringAfter("\"score\":").substringBefore(',').toDouble()
+        while (!lastPage) {
+            // download JSON
+            downloadFile("https://api.jikan.moe/v3/user/$username/animelist/all/$page", "animelist.json") // page because the API only retrieves 300 anime per page
 
-            if (score > 0.0) {
-                animeMap[id] = score
-                //println("$id: $score")
+            // extract data from JSON
+            val json = File("animelist.json") // "https://api.jikan.moe/v3/user/$username/animelist"
+            val jsonAsString = json.readText().substringAfter("\"anime\":[{\"") // delete the beginning before the animes
+            val animes = jsonAsString.split("mal_id\":") // split between the animes
+
+            if (animes.size <= 1) { // 1 because we have the trash string at the beginning TODO change to 0 when we have a better solution
+                lastPage = true
+            } else {
+                for (anime in animes) {
+                    if (anime == "") { // for some reason we get an empty string at the beginning TODO create a better solution
+                        continue
+                    }
+                    val id = anime.substringBefore(',').toInt()
+                    val score = anime.substringAfter("\"score\":").substringBefore(',').toDouble()
+
+                    if (score > 0.0) {
+                        animeMap[id] = score
+                    }
+                }
+                page++
             }
         }
     }
 
     fun analyzeAnimeMap() {
-
+        val ams =animeMap.size
+        println("animeMap.size: $ams")
     }
 
     private fun downloadFile(url: String, name: String) {
