@@ -5,14 +5,15 @@ import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
 
-// TODO staff, source material data
-// TODO maybe have to add wait because of API restrictions
+// TODO anime: source
+// TODO characters_staff: staff
 class Recommender(private var username: String) {
     private var animeMap: MutableMap<Int, Int> = HashMap() // Key is ID of an anime and Value is the users score
     private var genreMap: MutableMap<Int, ArrayList<Int>> = HashMap()
     private var studioMap: MutableMap<Int, ArrayList<Int>> = HashMap()
     private var staffMap: MutableMap<String, ArrayList<Int>> = HashMap()
     private var sourceMaterialMap: MutableMap<String, ArrayList<Int>> = HashMap()
+    private var typeMap: MutableMap<String, ArrayList<Int>> = HashMap()
 
     /**
      * This method downloads a users animelist and puts the anime ID and the users score into the animeMap.
@@ -42,18 +43,36 @@ class Recommender(private var username: String) {
                     val id = anime.substringBefore(',').toInt()
                     val score = anime.substringAfter("\"score\":").substringBefore(',').toInt()
 
-                    if (score > 0) { // only add a score if there was actually one set (0 means unset)
+                    if (score > 0) { // only add a score if there was actually one set (0 means no score)
                         animeMap[id] = score
+
+                        // add type to typeMap
+                        val type = anime.substringAfter("\"type\":\"").substringBefore('"')
+                        if (!typeMap.containsKey(type)) {
+                            typeMap[type] = ArrayList()
+                        }
+                        typeMap[type]?.add(score)
                     }
                 }
                 page++
             }
+            // TODO remove
+            /*for (a in animeMap.keys) {
+                println(a)
+            }
+            for (a in typeMap.keys) {
+                println("$a: ${typeMap[a]?.average()}")
+            }*/
         }
     }
 
     fun analyzeAnimeMap() {
+        val waitTimeSeconds: Long = 3
         animeMap[35240] = 5 // TODO remove later
+        println("This process will take about ${animeMap.keys.size * waitTimeSeconds}")
         for (anime in animeMap.keys) {
+            /*println("Processing anime: $anime")
+            Thread.sleep(waitTimeSeconds * 1000)*/ // wait 3 seconds because the jikan API wants that (apparently that is not needed for cachec requests)
             val animeScore = animeMap[anime]
             if (animeScore == null) {
                 continue
@@ -74,7 +93,12 @@ class Recommender(private var username: String) {
                     continue
                 }
                 val studioIDint = studioID.toInt()
+
+                if (!studioMap.containsKey(studioIDint)) {
+                    studioMap[studioIDint] = ArrayList()
+                }
                 studioMap[studioIDint]?.add(animeScore)
+                //studioMap[studioIDint]?.add(animeScore) ?:  studioMap[studioIDint] = ArrayList<Int>()// TODO actually add stuff to the map
 
             }
 
@@ -88,7 +112,7 @@ class Recommender(private var username: String) {
                     continue
                 }
                 val genreIDint = genre.substringBefore(',').toInt()
-                genreMap[genreIDint]?.add(animeScore)
+                genreMap[genreIDint]?.add(animeScore) // TODO actually add stuff to the map
             }
         }
     }

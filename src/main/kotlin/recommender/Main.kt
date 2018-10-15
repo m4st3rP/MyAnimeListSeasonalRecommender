@@ -8,6 +8,6 @@ fun main(args: Array<String>) {
     }
     val recommender = Recommender(input)
 
-    //recommender.analyzeAnimelistJSON()
-    recommender.analyzeAnimeMap()
+    recommender.analyzeAnimelistJSON()
+    //recommender.analyzeAnimeMap()
 }
