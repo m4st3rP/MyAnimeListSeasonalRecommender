@@ -8,4 +8,4 @@ class EpisodesAmount(Enum):
     TwentyThirty = 4
     ThirtyoneFifty = 5
     FiftyoneOnehundred = 6
-    OnehundredPlus = 7
+    OnehundredonePlus = 7
