@@ -24,14 +24,15 @@ class Recomender:
         self.jikan = Jikan()  # API object
 
         self.anime_dic = {}  # dic of anime id and it's score
-        self.genre_dic = defaultdict(list)  # dic of genres and a list of user scores
-        self.studio_dic = defaultdict(list)
-        self.source_material_dic = defaultdict(list)
-        self.type_dic = defaultdict(list)
-        self.episodes_amount_dic = defaultdict(list)
-        self.staff_dic = defaultdict(list)
+        self.genre_dic = defaultdict(list)  # dic of genres and a list of user scores for them
+        self.studio_dic = defaultdict(list)  # dic of studios and a list of user scores for them
+        self.source_material_dic = defaultdict(list)  # dic of source materials and a list of user scores for them
+        self.type_dic = defaultdict(list)  # dic of types and a list of user scores for them
+        self.episodes_amount_dic = defaultdict(list)  # dic of episode amount enums and a list of user scores for them
+        self.staff_dic = defaultdict(list)  # dic of staff people and a list of user scores for them
 
         self.analyzed_anime_dic = {}  # dic of analyzed seasonal anime and their scores
+        self.anime_name_dic = {}  # dic of MAL anime ids and names
 
     """
     Fills the anime_dic with the users rated anime
@@ -174,6 +175,7 @@ class Recomender:
                 score_addition_counter += 1
 
             if score_addition_counter > 0:
+                self.anime_name_dic[anime["mal_id"]] = anime["title"]
                 self.analyzed_anime_dic[anime["mal_id"]] = (score / score_addition_counter) * (
                         0.4 + 0.1 * score_addition_counter)  # calculate the score and add the anime to the dic
 
@@ -181,9 +183,10 @@ class Recomender:
     writes a comma seperated value file with the result of the analyzed seasonal anime
     """
     def write_analyzed_anime_to_file(self):
-        with open("analyzed_anime.txt", "w") as text_file:
+        with open("analyzed_anime.txt", mode="w", encoding="utf8") as text_file:
+            text_file.write("MAL ID,Name,Score\n")
             for anime in self.analyzed_anime_dic.keys():
-                text_file.write(str(anime) + "," + str(self.analyzed_anime_dic[anime]) + "\n")
+                text_file.write(str(self.anime_name_dic[anime]) + "," + str(anime) + "," + str(self.analyzed_anime_dic[anime]) + "\n")
         print("Done writing file!")
 
     """
