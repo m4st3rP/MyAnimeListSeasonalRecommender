@@ -1,4 +1,5 @@
 from Recomender import Recomender
 
 recomender = Recomender("masterP")
-recomender.gather_data()
+recomender.fill_anime_dic()
+recomender.gather_anime_data()
