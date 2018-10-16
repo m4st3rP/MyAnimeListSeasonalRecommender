@@ -184,9 +184,9 @@ class Recomender:
     """
     def write_analyzed_anime_to_file(self):
         with open("analyzed_anime.txt", mode="w", encoding="utf8") as text_file:
-            text_file.write("MAL ID,Name,Score\n")
+            text_file.write("Name^MAL ID^Score\n")
             for anime in self.analyzed_anime_dic.keys():
-                text_file.write(str(self.anime_name_dic[anime]) + "," + str(anime) + "," + str(self.analyzed_anime_dic[anime]) + "\n")
+                text_file.write(str(self.anime_name_dic[anime]) + "^" + str(anime) + "^" + str(self.analyzed_anime_dic[anime]) + "\n")
         print("Done writing file!")
 
     """
