@@ -1,10 +1,10 @@
 from collections import defaultdict
+
 from jikanpy import Jikan
 from EpisodesAmount import EpisodesAmount
 import time
 
-
-SLEEP_TIME = 4
+SLEEP_TIME = 4.5
 # importance factors of attributes of anime
 GENRE_FACTOR = 1
 STUDIO_FACTOR = 1
@@ -33,10 +33,12 @@ class Recomender:
 
         self.analyzed_anime_dic = {}  # dic of analyzed seasonal anime and their scores
         self.anime_name_dic = {}  # dic of MAL anime ids and names
+        self.staff_name_dic = {}  # dic of MAL staff ids and names
 
     """
     Fills the anime_dic with the users rated anime
     """
+
     def fill_anime_dic(self):
         last_page = False
         page_num = 1
@@ -55,6 +57,7 @@ class Recomender:
     """
     Gathers data like genre or studio scores based upon the anime in the anime dic
     """
+
     def gather_anime_data(self):
         print("Started gathering anime data.")
         for animeID in self.anime_dic.keys():  # go though every anime
@@ -88,6 +91,7 @@ class Recomender:
                     #  only add the staff member if their position is relevant according to my own decision
                     if position in POSITION_SET:
                         self.staff_dic[staff_member["mal_id"]].append(score)
+                        self.staff_name_dic[staff_member["mal_id"]] = staff_member["name"]
 
     """
     analyzes the anime of a specific season with the data gathered from the user
@@ -96,6 +100,7 @@ class Recomender:
     kids = boolean, if you want to analyze kids shows
     r18 = if you want to analyze r18 (hentai) shows
     """
+
     def analyze_seasonal_anime(self, year, season, kids, r18):
         seasonal_anime_full = self.jikan.season(year=year, season=season)
         if seasonal_anime_full["request_cached"] is False:
@@ -156,8 +161,7 @@ class Recomender:
             if episode_amount > 0:
                 episode_enum = self.get_episode_amount_enum(episode_amount)
                 if episode_enum in self.episodes_amount_dic:
-                    episode_amount_score = sum(self.episodes_amount_dic[episode_enum]) / len(
-                        self.episodes_amount_dic[episode_enum])
+                    episode_amount_score = sum(self.episodes_amount_dic[episode_enum]) / len(self.episodes_amount_dic[episode_enum])
                     if episode_amount_score > 0:
                         score += episode_amount_score * EPISODE_AMOUNT_FACTOR
                         score_addition_counter += 1
@@ -167,8 +171,7 @@ class Recomender:
             for staff_member in anime_staff:
                 if staff_member["mal_id"] in self.staff_dic:
                     staff_amount += 1
-                    staff_score += sum(self.staff_dic[staff_member["mal_id"]]) / len(
-                        self.staff_dic[staff_member["mal_id"]])
+                    staff_score += sum(self.staff_dic[staff_member["mal_id"]]) / len(self.staff_dic[staff_member["mal_id"]])
             if staff_amount > 0:
                 staff_score /= staff_amount
                 score += staff_score * STAFF_FACTOR
@@ -182,16 +185,39 @@ class Recomender:
     """
     writes a comma seperated value file with the result of the analyzed seasonal anime
     """
+
     def write_analyzed_anime_to_file(self):
         with open("analyzed_anime.txt", mode="w", encoding="utf8") as text_file:
             text_file.write("Name^MAL ID^Score\n")
             for anime in self.analyzed_anime_dic.keys():
                 text_file.write(str(self.anime_name_dic[anime]) + "^" + str(anime) + "^" + str(self.analyzed_anime_dic[anime]) + "\n")
-        print("Done writing file!")
+        print("Done writing anime file!")
+
+    """
+    writes a comma seperated value file with staff members and their score
+    """
+
+    def write_analyzed_staff_to_file(self):
+        with open("analyzed_staff.txt", mode="w", encoding="utf8") as text_file:
+            text_file.write("Name^MAL ID^Average^Amount^Score\n")
+
+            max_len = -1
+            for staff in self.staff_dic.keys():
+                if len(self.staff_dic[staff]) > max_len:
+                    max_len = len(self.staff_dic[staff])
+
+            for staff in self.staff_dic.keys():
+                FACTOR = 0.866
+                length = len(self.staff_dic[staff])
+                scores_list = self.staff_dic[staff]
+                average = sum(scores_list) / length
+                text_file.write(str(self.staff_name_dic[staff]) + "^" + str(staff) + "^" + str(average) + "^" + str(length) + "^" + str(average * FACTOR + ((length / max_len) * (1.0 - FACTOR) * 10.0)) + "\n")
+        print("Done writing staff file!")
 
     """
     A Function that returns an Enum for summarizing episode amounts
     """
+
     @staticmethod
     def get_episode_amount_enum(amount):
         if amount < 1:
