@@ -24,11 +24,23 @@ def analyze_season(write_staff_file):
 
     recomender = Recomender(username)
     recomender.fill_anime_dic()
-    recomender.gather_anime_data()
+    recomender.gather_anime_data_from_anime_dic()
     recomender.analyze_seasonal_anime(year, season, kids_boolean, r18_boolean)
     recomender.write_analyzed_anime_to_file()
     if write_staff_file:
         recomender.write_analyzed_staff_to_file()
+
+
+"""
+analyzes a single anime with its MAL id
+"""
+def analyze_one_anime():
+    mal_id = int(input("Enter the MAL id of the anime: "))
+    recomender = Recomender(username)
+    recomender.fill_anime_dic()
+    recomender.gather_anime_data_from_anime_dic()
+    recomender.analyze_anime(mal_id)
+    recomender.write_analyzed_anime_to_file()
 
 
 """
@@ -37,12 +49,12 @@ writes a csv file for the staff a specific user likes
 def analyze_staff():
     recomender = Recomender(username)
     recomender.fill_anime_dic()
-    recomender.gather_anime_data()
+    recomender.gather_anime_data_from_anime_dic()
     recomender.write_analyzed_staff_to_file()
 
 
 username = str(input("Enter your MAL username: "))
-mode = str(input("Enter \"season\" if you want to analyze a season or \"staff\" if you want to analyze which staff you like or \"both\" for both: "))
+mode = str(input("Enter \"season\" if you want to analyze a season or \"staff\" if you want to analyze which staff you like or \"both\" for both or \"single\" for one anime: "))
 
 if mode.lower() == "season" or mode.lower() == "\"season\"":
     print("You selected \"season\".")
@@ -53,5 +65,8 @@ elif mode.lower() == "staff" or mode.lower() == "\"staff\"":
 elif mode.lower() == "both" or mode.lower() == "\"both\"":
     print("You selected \"both\".")
     analyze_season(True)
+elif mode.lower() == "single" or mode.lower() == "\"single\"":
+    print("You selected \"single\".")
+    analyze_one_anime()
 else:
     print("You selected neither.")
