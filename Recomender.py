@@ -4,7 +4,7 @@ from jikanpy import Jikan
 from EpisodesAmount import EpisodesAmount
 import time
 
-SLEEP_TIME = 5.5  # seconds to wait after a non cached request
+SLEEP_TIME = 3.0  # seconds to wait after a non cached request
 # importance factors of attributes of anime
 GENRE_FACTOR = 1
 STUDIO_FACTOR = 1
@@ -22,7 +22,7 @@ A class that analyzes a MAL user and can analyze how well they will like the ani
 """
 class Recomender:
     def __init__(self, user_name):
-        self.user_name = user_name  # MAL username
+        self.user_name: str = user_name  # MAL username
         self.jikan = Jikan()  # API object
 
         self.anime_dic = {}  # dic of anime id and it's score
@@ -42,8 +42,8 @@ class Recomender:
     """
     def fill_anime_dic(self):
         print("Started filling anime dic.")
-        last_page = False
-        page_num = 1
+        last_page: bool = False
+        page_num: int = 1
 
         while not last_page:  # the API only returns 300 anime so we may need to request multiple pages
             animelist = self.jikan.user(username=self.user_name, request='animelist', argument="all", page=page_num)
@@ -243,7 +243,7 @@ class Recomender:
     A Function that returns an Enum for summarizing episode amounts
     """
     @staticmethod
-    def get_episode_amount_enum(amount):
+    def get_episode_amount_enum(amount) -> EpisodesAmount:
         if amount < 1:
             return None
         elif amount == 1:

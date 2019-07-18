@@ -5,6 +5,7 @@ analyzes a season for a specific user and writes the result into a file and opti
 write_staff_file = Boolean if the user also wants to get staff they like
 """
 def analyze_season(write_staff_file):
+    """
     year = int(input("Enter the season year: "))
     season = str(input("Enter the season (winter, spring, summer or fall): "))
     kids = str(input("Enter yes or no if you want kids shows: "))
@@ -21,7 +22,13 @@ def analyze_season(write_staff_file):
     else:
         r18_boolean = False
         print("You selected no.")
+    """
 
+    username = "masterP"
+    year = 2019
+    season = "winter"
+    kids_boolean = False
+    r18_boolean = False
     recomender = Recomender(username)
     recomender.fill_anime_dic()
     recomender.gather_anime_data_from_anime_dic()
@@ -53,8 +60,9 @@ def analyze_staff():
     recomender.write_analyzed_staff_to_file()
 
 
-username = str(input("Enter your MAL username: "))
-mode = str(input("Enter \"season\" if you want to analyze a season or \"staff\" if you want to analyze which staff you like or \"both\" for both or \"single\" for one anime: "))
+#username = str(input("Enter your MAL username: "))
+#mode = str(input("Enter \"season\" if you want to analyze a season or \"staff\" if you want to analyze which staff you like or \"both\" for both or \"single\" for one anime: "))
+mode = "season"
 
 if mode.lower() == "season" or mode.lower() == "\"season\"":
     print("You selected \"season\".")
